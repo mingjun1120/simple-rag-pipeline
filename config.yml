@@ -5,7 +5,7 @@ ai_platform:
 
 # Common parameters used by both platforms
 common:
-  temperature: 0.5
+  temperature: 1  # GPT-5 Mini only supports temperature=1
   top_p: 1
   seed: 123
 
