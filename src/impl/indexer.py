@@ -9,7 +9,7 @@ from docling.chunking import HybridChunker, DocChunk
 class Indexer(BaseIndexer):
     def __init__(self):
         self.converter = DocumentConverter()
-        self.chunker = HybridChunker()
+        self.chunker = HybridChunker(max_tokens=8192)
         # Disable tokenizers parallelism to avoid OOM errors.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
