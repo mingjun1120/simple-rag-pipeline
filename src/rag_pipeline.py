@@ -61,7 +61,7 @@ class RAGPipeline:
             print(f"Response: {result.response}\n")
             print(f"Expected Answer: {result.expected_answer}\n")
             print(f"Reasoning: {result.reasoning}\n")
-            print("--------------------------------")
+            print("----------------------------------------------------------------------")
 
         number_correct = sum(result.is_correct for result in results)
         print(f"✨ Total Score: {number_correct}/{len(results)}")
