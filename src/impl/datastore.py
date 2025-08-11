@@ -52,20 +52,13 @@ class Datastore(BaseDatastore):
         return self.table
 
     def get_vector(self, content: str) -> List[float]:
-        response = self.gemini_client.models.embed_content(
-            contents=content,
-            model="gemini-embedding-001",
-            config=genai.types.EmbedContentConfig(output_dimensionality=self.vector_dimensions),
+        response = self.open_ai_client.embeddings.create(
+            input=content,
+            model="text-embedding-3-small",
+            dimensions=self.vector_dimensions,
         )
-        [embedding_obj] = response.embeddings
-        return embedding_obj.values
-        # response = self.open_ai_client.embeddings.create(
-        #     input=content,
-        #     model="text-embedding-3-small",
-        #     dimensions=self.vector_dimensions,
-        # )
-        # embeddings = response.data[0].embedding
-        # return embeddings
+        embeddings = response.data[0].embedding
+        return embeddings
 
     def get_vector_gemini(self, content: str) -> List[float]:
         response = self.gemini_client.models.embed_content(
