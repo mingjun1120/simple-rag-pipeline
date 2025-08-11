@@ -32,7 +32,7 @@ class RAGPipeline:
         print(f"✅ Added {len(items)} items to the datastore.")
 
     def process_query(self, query: str) -> str:
-        search_results = self.retriever.search(query)
+        search_results = self.retriever.search(query=query, top_k=3)
         print(f"✅ Found {len(search_results)} results for query: {query}\n")
 
         for i, result in enumerate(search_results):
