@@ -9,6 +9,7 @@ dependencies = [
     "cohere>=5.16.3",
     "docling>=2.43.0",
     "google-genai>=1.29.0",
+    "hf-xet>=1.1.7",
     "lancedb>=0.24.2",
     "openai>=1.99.6",
     "pydantic>=2.11.7",
