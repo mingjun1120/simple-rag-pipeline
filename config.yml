@@ -1,0 +1,24 @@
+# AI Platform Configuration
+# Choose between 'azure_openai' and 'cerebras'
+ai_platform:
+  provider: "azure_openai"  # Default: Azure OpenAI
+
+# Common parameters used by both platforms
+common:
+  temperature: 0.5
+  top_p: 1
+  seed: 123
+
+# Azure OpenAI Configuration
+azure_openai:
+  model: "gpt-5-mini-2025-08-07"
+  azure_deployment: "gpt-5-mini"
+  api_version: "2025-04-01-preview"
+  azure_endpoint: "https://my-dna-openai-3.openai.azure.com/"
+  reasoning_effort: "medium"
+
+# Cerebras Configuration  
+cerebras:
+  model: "gpt-oss-120b"
+  max_completion_tokens: 65536
+  reasoning_effort: "medium"
