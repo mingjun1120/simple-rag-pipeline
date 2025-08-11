@@ -41,9 +41,7 @@ class RAGPipeline:
         response = self.response_generator.generate_response(query, search_results)
         return response
 
-    def evaluate(
-        self, sample_questions: List[Dict[str, str]]
-    ) -> List[EvaluationResult]:
+    def evaluate(self, sample_questions: List[Dict[str, str]]) -> List[EvaluationResult]:
         # Evaluate a list of question/answer pairs.
         questions = [item["question"] for item in sample_questions]
         expected_answers = [item["answer"] for item in sample_questions]
@@ -69,9 +67,7 @@ class RAGPipeline:
         print(f"✨ Total Score: {number_correct}/{len(results)}")
         return results
 
-    def _evaluate_single_question(
-        self, question: str, expected_answer: str
-    ) -> EvaluationResult:
+    def _evaluate_single_question(self, question: str, expected_answer: str) -> EvaluationResult:
         # Evaluate a single question/answer pair.
         response = self.process_query(question)
         return self.evaluator.evaluate(question, response, expected_answer)
