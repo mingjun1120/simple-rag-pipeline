@@ -5,9 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cerebras-cloud-sdk>=1.46.0",
     "cohere>=5.16.3",
     "docling>=2.43.0",
+    "google-genai>=1.29.0",
     "lancedb>=0.24.2",
     "openai>=1.99.6",
     "pydantic>=2.11.7",
+    "python-dotenv>=1.1.1",
 ]
