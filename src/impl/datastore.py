@@ -1,11 +1,17 @@
+import os
+import pyarrow as pa
 from typing import List
+from google import genai
+from openai import AzureOpenAI
+from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
 from interface.base_datastore import BaseDatastore, DataItem
+
+# Import LanceDB dependencies
 import lancedb
 from lancedb.table import Table
-import pyarrow as pa
-from openai import OpenAI
-from concurrent.futures import ThreadPoolExecutor
 
+load_dotenv()
 
 class Datastore(BaseDatastore):
 
@@ -14,7 +20,13 @@ class Datastore(BaseDatastore):
 
     def __init__(self):
         self.vector_dimensions = 1536
-        self.open_ai_client = OpenAI()
+        self.open_ai_client = AzureOpenAI(
+            azure_deployment="text-embedding-3-small", 
+            api_version="2024-12-01-preview", 
+            api_key=os.getenv("AZURE_OPENAI_API_KEY"), 
+            azure_endpoint="https://my-dna-openai.openai.azure.com/"
+        )
+        self.gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.vector_db = lancedb.connect(self.DB_PATH)
         self.table: Table = self._get_table()
 
@@ -40,13 +52,29 @@ class Datastore(BaseDatastore):
         return self.table
 
     def get_vector(self, content: str) -> List[float]:
-        response = self.open_ai_client.embeddings.create(
-            input=content,
-            model="text-embedding-3-small",
-            dimensions=self.vector_dimensions,
+        response = self.gemini_client.models.embed_content(
+            contents=content,
+            model="gemini-embedding-001",
+            config=genai.types.EmbedContentConfig(output_dimensionality=self.vector_dimensions),
         )
-        embeddings = response.data[0].embedding
-        return embeddings
+        [embedding_obj] = response.embeddings
+        return embedding_obj.values
+        # response = self.open_ai_client.embeddings.create(
+        #     input=content,
+        #     model="text-embedding-3-small",
+        #     dimensions=self.vector_dimensions,
+        # )
+        # embeddings = response.data[0].embedding
+        # return embeddings
+
+    def get_vector_gemini(self, content: str) -> List[float]:
+        response = self.gemini_client.models.embed_content(
+            contents=content,
+            model="gemini-embedding-001",
+            config=genai.types.EmbedContentConfig(output_dimensionality=self.vector_dimensions),
+        )
+        [embedding_obj] = response.embeddings
+        return embedding_obj.values
 
     def add_items(self, items: List[DataItem]) -> None:
 
