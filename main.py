@@ -1,10 +1,15 @@
+import os
 import glob
 import json
-import os
+import sys
+from pathlib import Path
 from typing import List
-from rag_pipeline import RAGPipeline
-from create_parser import create_parser
 
+# Add the src directory to Python's search path
+sys.path.append(str(Path(__file__).parent / "src"))
+
+from src.rag_pipeline import RAGPipeline
+from create_parser import create_parser
 from impl import Datastore, Indexer, Retriever, ResponseGenerator, Evaluator
 
 
@@ -20,6 +25,12 @@ def create_pipeline() -> RAGPipeline:
     response_generator = ResponseGenerator()
     evaluator = Evaluator()
     return RAGPipeline(datastore, indexer, retriever, response_generator, evaluator)
+
+
+def get_files_in_directory(source_path: str) -> List[str]:
+    if os.path.isfile(source_path):
+        return [source_path]
+    return glob.glob(os.path.join(source_path, "*"))
 
 
 def main():
@@ -38,7 +49,7 @@ def main():
         pipeline.reset()
 
     if args.command in ["add", "run"]:
-        print(f"🔍 Adding documents: {', '.join(document_paths)}")
+        print(f"🔍 Adding documents: {', '.join(document_paths).replace('\\', '/')}")
         pipeline.add_documents(document_paths)
 
     if args.command in ["evaluate", "run"]:
@@ -49,13 +60,6 @@ def main():
 
     if args.command == "query":
         print(f"✨ Response: {pipeline.process_query(args.prompt)}")
-
-
-def get_files_in_directory(source_path: str) -> List[str]:
-    if os.path.isfile(source_path):
-        return [source_path]
-    return glob.glob(os.path.join(source_path, "*"))
-
 
 if __name__ == "__main__":
     main()
