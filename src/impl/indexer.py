@@ -1,15 +1,19 @@
 import os
+import tiktoken
 from typing import List
 from interface.base_datastore import DataItem
 from interface.base_indexer import BaseIndexer
-from docling.document_converter import DocumentConverter
 from docling.chunking import HybridChunker, DocChunk
-
+from docling.document_converter import DocumentConverter
+from docling_core.transforms.chunker.tokenizer.openai import OpenAITokenizer
 
 class Indexer(BaseIndexer):
     def __init__(self):
         self.converter = DocumentConverter()
-        self.chunker = HybridChunker(max_tokens=8192)
+        
+        tokenizer = OpenAITokenizer(tokenizer=tiktoken.encoding_for_model("gpt-4o"), max_tokens=128 * 1024)
+        self.chunker = HybridChunker(tokenizer=tokenizer, max_tokens=8192)
+        
         # Disable tokenizers parallelism to avoid OOM errors.
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
