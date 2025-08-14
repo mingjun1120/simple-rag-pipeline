@@ -19,8 +19,8 @@ The RAG Framework lets you:
   Orchestrates the process using:
 
   - **Datastore:** Manages embeddings and vector storage.
-  - **Indexer:** Processes documents and creates data chunks. Two versions are available—a basic PDF indexer and one using the Docling package.
-  - **Retriever:** Searches the datastore to pull relevant document segments.
+  - **Indexer:** Processes documents and creates data chunks. Uses `Docling` package with OpenAI's `tiktoken` tokenizer.
+  - **Retriever:** Searches the datastore to pull relevant document segments and rank them.
   - **ResponseGenerator:** Generates answers by calling the AI service.
   - **Evaluator:** Compares the AI responses to expected answers and explains the outcome.
 
@@ -32,8 +32,8 @@ The RAG Framework lets you:
 #### Set Up a Virtual Environment (Optional but Recommended)
 
 ```bash
-python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate   # On Windows: venv\Scripts\activate
 ```
 
 #### Install Dependencies
@@ -44,21 +44,21 @@ pip install -r requirements.txt
 
 #### Configure Environment Variables
 
-We use OpenAI for the LLM (you can modify/replace it in `src/util/invoke_ai.py`). Make sure to set your OpenAI API key. For example:
+We use **Azure OpenAI** or **Cerebras** platform for the LLM (you can modify/replace it in `src/util/invoke_ai.py`). Make sure to create a **`.env`** file as follow:
 
-```sh
-export OPENAI_API_KEY='your_openai_api_key'
+```bash
+CO_API_KEY="<your_cohere_api_key>"
+AZURE_OPENAI_API_KEY="<your_aoi_api_key>"
+GEMINI_API_KEY="<your_gemini_api_key>"
+CEREBRAS_API_KEY="<your_cerebras_api_key>"
+AZURE_OPENAI_API_KEY2="<your_aoi_api_key>"
 ```
-
-You will also need a Cohere key for the re-ranking feature used in `src/impl/retriever.py`. You can create an account and create an API key at https://cohere.com/
-
-```sh
-set -x CO_API_KEY "xxx"
-```
+**_Note:_**
+You will also need a **Cohere** key for the re-ranking feature used in `src/impl/retriever.py`. You can create an account and create an API key at https://cohere.com/
 
 ## Usage
 
-The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source/eval paths specified in `main.py`, but there are flags to override them.
+The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source and eval paths specified in `main.py`, but there are flags to override them.
 
 ```python
 DEFAULT_SOURCE_PATH = "sample_data/source/"
