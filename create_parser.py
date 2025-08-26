@@ -53,10 +53,13 @@ def create_parser():
         help="Run the full pipeline: reset, add, evaluate.",
         parents=[path_arg_parent, eval_file_arg_parent],
     )
+    
     subparsers.add_parser("reset", help="Reset the database")
+    
     subparsers.add_parser(
         "add", help="Add (index) documents to the database.", parents=[path_arg_parent]
     )
+    
     subparsers.add_parser(
         "evaluate", help="Evaluate the model", parents=[eval_file_arg_parent]
     )

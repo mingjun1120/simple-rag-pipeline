@@ -35,8 +35,17 @@ class RAGPipeline:
         search_results = self.retriever.search(query=query, top_k=3)
         print(f"✅ Found {len(search_results)} results for query: {query}\n")
 
-        for i, result in enumerate(search_results):
-            print(f"🔍 Result {i+1}: {result}\n")
+        # Display search results with enhanced source information
+        for i, result in enumerate(search_results, 1):
+            filename = result.source.split(':')[0] if result.source else "Unknown"
+            page_info = f", Page: {result.page_no}" if result.page_no else ""
+            section_info = f", Section: {' > '.join(result.headings)}" if result.headings else ""
+            score_info = f" (Score: {result.relevance_score:.3f})" if result.relevance_score > 0 else ""
+            
+            print(f"🔍 Result {i}: {filename}{page_info}{section_info}{score_info}")
+            # Show first 100 characters of content
+            preview = result.content[:100] + "..." if len(result.content) > 100 else result.content
+            print(f"   Preview: {preview.replace(chr(10), ' ')}\n")
 
         response = self.response_generator.generate_response(query, search_results)
         return response

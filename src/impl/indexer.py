@@ -28,10 +28,36 @@ class Indexer(BaseIndexer):
     def _items_from_chunks(self, chunks: List[DocChunk]) -> List[DataItem]:
         items = []
         for i, chunk in enumerate(chunks):
-            content_headings = "## " + ", ".join(chunk.meta.headings)
-            content_text = f"{content_headings}\n{chunk.text}"
-            source = f"{chunk.meta.origin.filename}:{i}"
-            item = DataItem(content=content_text, source=source)
+            # Extract page and location info
+            page_no = None
+            bbox = None
+            if chunk.meta.doc_items and chunk.meta.doc_items[0].prov:
+                prov = chunk.meta.doc_items[0].prov[0]
+                page_no = prov.page_no
+                bbox = prov.bbox.__dict__ if prov.bbox else None
+            
+            # Create rich metadata
+            metadata = {
+                "page_no": page_no,
+                "bbox": bbox,
+                "headings": chunk.meta.headings,
+                "chunk_index": i,
+                "filename": chunk.meta.origin.filename if chunk.meta.origin else None
+            }
+
+            # Enrich the chunk
+            content_headings = "## " + ", ".join(chunk.meta.headings) if chunk.meta.headings else ""
+            content_text = f"{content_headings}\n{chunk.text}" if content_headings else chunk.text
+            
+            # Enhanced source string with page info
+            filename = chunk.meta.origin.filename if chunk.meta.origin else "unknown"
+            source = f"{filename}:page_{page_no}:chunk_{i}" if page_no is not None else f"{filename}:chunk_{i}"
+            
+            item = DataItem(
+                content=content_text,
+                source=source,
+                metadata=metadata
+            )
             items.append(item)
 
         return items

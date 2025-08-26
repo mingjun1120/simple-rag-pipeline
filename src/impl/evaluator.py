@@ -17,9 +17,7 @@ Then return the result in <result>...</result> tags — either as 'true' or 'fal
 
 
 class Evaluator(BaseEvaluator):
-    def evaluate(
-        self, query: str, response: str, expected_answer: str
-    ) -> EvaluationResult:
+    def evaluate(self, query: str, response: str, expected_answer: str) -> EvaluationResult:
 
         user_prompt = f"""
         <question>\n{query}\n</question>
@@ -27,9 +25,7 @@ class Evaluator(BaseEvaluator):
         <expected_answer>\n{expected_answer}\n</expected_answer>
         """
 
-        response_content = invoke_ai(
-            system_message=SYSTEM_PROMPT, user_message=user_prompt
-        )
+        response_content = invoke_ai(system_message=SYSTEM_PROMPT, user_message=user_prompt)
 
         reasoning = extract_xml_tag(response_content, "reasoning")
         result = extract_xml_tag(response_content, "result")

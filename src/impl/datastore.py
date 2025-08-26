@@ -1,11 +1,12 @@
 import os
+import json
 import pyarrow as pa
 from typing import List
 from google import genai
 from openai import AzureOpenAI
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
-from interface.base_datastore import BaseDatastore, DataItem
+from interface.base_datastore import BaseDatastore, DataItem, SearchResult
 
 # Import LanceDB dependencies
 import lancedb
@@ -43,6 +44,7 @@ class Datastore(BaseDatastore):
                 pa.field("vector", pa.list_(pa.float32(), self.vector_dimensions)),
                 pa.field("content", pa.utf8()),
                 pa.field("source", pa.utf8()),
+                pa.field("metadata", pa.utf8()),  # JSON string for metadata
             ]
         )
 
@@ -79,17 +81,36 @@ class Datastore(BaseDatastore):
             "source"
         ).when_matched_update_all().when_not_matched_insert_all().execute(entries)
 
-    def search(self, query: str, top_k: int = 5) -> List[str]:
+    def search(self, query: str, top_k: int = 5) -> List[SearchResult]:
         vector = self.get_vector(query)
         results = (
             self.table.search(vector)
-            .select(["content", "source"])
+            .select(["content", "source", "metadata"])
             .limit(top_k)
             .to_list()
         )
 
-        result_content = [result.get("content") for result in results]
-        return result_content
+        search_results = []
+        for result in results:
+            # Parse metadata JSON
+            metadata = {}
+            try:
+                if result.get("metadata"):
+                    metadata = json.loads(result.get("metadata"))
+            except (json.JSONDecodeError, TypeError):
+                metadata = {}
+            
+            search_result = SearchResult(
+                content=result.get("content", ""),
+                source=result.get("source", ""),
+                page_no=metadata.get("page_no"),
+                headings=metadata.get("headings"),
+                bbox=metadata.get("bbox"),
+                relevance_score=0.0  # Will be set by retriever with re-ranking
+            )
+            search_results.append(search_result)
+        
+        return search_results
 
     def _get_table(self) -> Table:
         try:
@@ -101,8 +122,10 @@ class Datastore(BaseDatastore):
     def _convert_item_to_entry(self, item: DataItem) -> dict:
         """Convert a DataItem to match table schema."""
         vector = self.get_vector(item.content)
+        metadata_json = json.dumps(item.metadata) if item.metadata else "{}"
         return {
             "vector": vector,
             "content": item.content,
             "source": item.source,
+            "metadata": metadata_json,
         }
