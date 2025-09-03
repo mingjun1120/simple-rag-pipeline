@@ -24,12 +24,12 @@ class ResponseGenerator(BaseResponseGenerator):
         # Get AI response
         ai_response = invoke_ai(system_message=SYSTEM_PROMPT, user_message=user_message)
         
-        # Format with source citations
-        formatted_response = self._format_response_with_sources(ai_response, search_results)
+        # Get source citations
+        sources_section = self._cite_sources(search_results)
         
-        return formatted_response
+        return ai_response + sources_section
     
-    def _format_response_with_sources(self, ai_response: str, search_results: List[SearchResult]) -> str:
+    def _cite_sources(self, search_results: List[SearchResult]) -> str:
         """Format the response with detailed source citations."""
         
         # Create source citations
@@ -59,4 +59,4 @@ class ResponseGenerator(BaseResponseGenerator):
             )
             sources_section += citation
         
-        return ai_response + sources_section
+        return sources_section
